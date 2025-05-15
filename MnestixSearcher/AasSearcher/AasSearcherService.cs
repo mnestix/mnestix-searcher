@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using MnestixSearcher.Controllers;
 using MongoDB.Driver;
 
 namespace MnestixSearcher.AasSearcher;
@@ -10,7 +9,6 @@ public class AasSearcherService
 
     public AasSearcherService(IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings)
     {
-        // TODO turn of authentication for prototype
         var mongoClient = new MongoClient(
             aasSearchDatabaseSettings.Value.ConnectionString);
 
@@ -25,23 +23,48 @@ public class AasSearcherService
     public async Task<List<AasSearchEntry>> GetAsync() =>
         await _aasSearchEntries.Find(_ => true).ToListAsync();
     
+    public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter) =>
+        await _aasSearchEntries.Find(filter).ToListAsync();
+    
     public async Task FillDatabase()
     {
+        // Delete all existing documents in the collection
+        await _aasSearchEntries.DeleteManyAsync(_ => true);
+        
         var aasSearchEntries = new List<AasSearchEntry>
         {
             new AasSearchEntry
             {
-                Id = "1",
+                Id = "aasId1",
                 ProductRoot = "ProductRoot1",
                 ProductFamily = "ProductFamily1",
-                ProductDesignation = "ProductDesignation1"
+                ProductDesignation = "ProductDesignation1",
+                ProductClassifications = new Dictionary<string, object>
+                {
+                    {"ECLASS", new {Version = "1.2.3", ProductId = "safsafdsf"}},
+                    {"VEC", new {Version = "1.2.3", ProductId = "safsafdsf"}},
+                },
+             /*   TechnicalProperties = new Dictionary<string, object>
+                { // always use the full idShortPath as key 
+                    { "TechnicalData.TechnicalProperties.Size", "10" },
+                    { "TechnicalData.TechnicalProperties.Family", new { länge = 10, breite = 5, höhe = 2 } }
+                } */
             },
             new AasSearchEntry
             {
-                Id = "2",
+                Id = "aadId2",
                 ProductRoot = "ProductRoot2",
                 ProductFamily = "ProductFamily2",
-                ProductDesignation = "ProductDesignation2"
+                ProductDesignation = "ProductDesignation2",
+                ProductClassifications = new Dictionary<string, object> {
+                    {"ECLASS", new {Version = "1.2.3", ProductId = "safsafdsf"}},
+                    {"VEC", new {Version = "1.2.3", ProductId = "safsafdsf"}},
+                },
+              /*  TechnicalProperties = new Dictionary<string, object>
+                { // always use the full idShortPath as key 
+                    { "TechnicalData.TechnicalProperties.Size", "100" },
+                    { "TechnicalData.TechnicalProperties.Family", new { länge = 10, breite = 5, höhe = 2 }}
+                } */
             }
         };
 

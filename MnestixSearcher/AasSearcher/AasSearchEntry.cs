@@ -1,6 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MnestixSearcher.Controllers;
+namespace MnestixSearcher.AasSearcher;
 
 public class AasSearchEntry
 {
@@ -12,4 +12,8 @@ public class AasSearchEntry
     public string? ProductFamily { get; set; }
     
     public string? ProductDesignation { get; set; }
+    
+   // public Dictionary<string, object>? TechnicalProperties { get; set; }
+    
+    public Dictionary<string, object>? ProductClassifications { get; set; }
 }
