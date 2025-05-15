@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MnestixSearcher.AasSearcher;
@@ -17,6 +18,8 @@ public class AasSearcherService
 
         _aasSearchEntries = mongoDatabase.GetCollection<AasSearchEntry>(
             aasSearchDatabaseSettings.Value.CollectionName);
+        
+        InitializeCollectionAsync().Wait();
 
     }
     
@@ -70,5 +73,29 @@ public class AasSearcherService
 
         await _aasSearchEntries.InsertManyAsync(aasSearchEntries);
     }
-
+    private async Task InitializeCollectionAsync()
+    {
+        try
+        {
+            // Check if collection is already there
+            var filter = new BsonDocument("name", _aasSearchEntries.CollectionNamespace.CollectionName);
+            var collections = await _aasSearchEntries.Database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
+            
+            if (!await collections.AnyAsync())
+            {
+                await _aasSearchEntries.Database.CreateCollectionAsync(_aasSearchEntries.CollectionNamespace.CollectionName);
+                
+                var indexKeysDefinition = Builders<AasSearchEntry>.IndexKeys
+                    .Ascending(entry => entry.ProductRoot)
+                    .Ascending(entry => entry.ProductFamily)
+                    .Ascending(entry => entry.ProductDesignation);
+                
+                await _aasSearchEntries.Indexes.CreateOneAsync(new CreateIndexModel<AasSearchEntry>(indexKeysDefinition));
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Error initializing Collection", ex);
+        }
+    }
 }
