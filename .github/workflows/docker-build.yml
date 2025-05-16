@@ -33,4 +33,4 @@ jobs:
           context: "."
           push: false
           platforms: linux/amd64,linux/arm64
-          tags: mnestix/mnestix-searcher:latest
+          tags: mnestix/mnestix-searcher:latest-dev
