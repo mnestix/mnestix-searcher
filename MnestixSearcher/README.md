@@ -8,6 +8,7 @@ The collection is created by the MnestixSearcher on startup (if not already ther
 
 Start:
 ```bash
+ cd .\MnestixSearcher\
 dotnet run
 ```
 
