@@ -10,7 +10,6 @@ on:
 jobs:
   docker-build:
     name: Build images and push
-    needs: run-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
