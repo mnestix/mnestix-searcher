@@ -14,4 +14,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MnestixSearcher.Clients\MnestixSearcher.Clients.csproj" />
+  </ItemGroup>
+
 </Project>
