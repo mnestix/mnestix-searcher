@@ -2710,6 +2710,7 @@ namespace MnestixSearcher.Clients.Api
                 } catch (Exception e)
                 {
                     OnDeserializationErrorDefaultImplementation(e, (HttpStatusCode)200);
+                    Console.WriteLine(e);
                 }
 
                 return result != null;

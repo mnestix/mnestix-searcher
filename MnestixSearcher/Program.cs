@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MnestixSearcher;
 using MnestixSearcher.AasSearcher;
 using MnestixSearcher.Clients.Extensions;
@@ -8,6 +9,9 @@ builder.Services.Configure<AasSearchDatabaseSettings>(
     builder.Configuration.GetSection("AasSearcherDatabase"));
 builder.Services.AddSingleton<AasSearcherService>();
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Add API client services
 builder.Services.AddApi(options =>
 {
@@ -15,6 +19,11 @@ builder.Services.AddApi(options =>
     {
         // Configure your API base address here
         client.BaseAddress = new Uri("https://vws4ls-api.dev.mnestix.xitaso.net/repo");
+    });
+    options.ConfigureJsonOptions(jsonOptions =>
+    {
+        jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        jsonOptions.PropertyNameCaseInsensitive = true;
     });
 });
 

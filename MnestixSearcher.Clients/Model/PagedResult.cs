@@ -36,9 +36,10 @@ namespace MnestixSearcher.Clients.Model
         /// </summary>
         /// <param name="pagingMetadata">pagingMetadata</param>
         [JsonConstructor]
-        public PagedResult(Option<PagedResultPagingMetadata?> pagingMetadata = default)
+        public PagedResult(Option<PagedResultPagingMetadata?> pagingMetadata = default, Dictionary<string, JsonElement> additionalProperties = default)
         {
             PagingMetadataOption = pagingMetadata;
+            AdditionalProperties = additionalProperties;
             OnCreated();
         }
 
@@ -103,6 +104,7 @@ namespace MnestixSearcher.Clients.Model
         /// <exception cref="JsonException"></exception>
         public override PagedResult Read(ref Utf8JsonReader utf8JsonReader, Type typeToConvert, JsonSerializerOptions jsonSerializerOptions)
         {
+            var additionalProperties = new Dictionary<string, JsonElement>();
             int currentDepth = utf8JsonReader.CurrentDepth;
 
             if (utf8JsonReader.TokenType != JsonTokenType.StartObject && utf8JsonReader.TokenType != JsonTokenType.StartArray)
@@ -131,6 +133,14 @@ namespace MnestixSearcher.Clients.Model
                             pagingMetadata = new Option<PagedResultPagingMetadata?>(JsonSerializer.Deserialize<PagedResultPagingMetadata>(ref utf8JsonReader, jsonSerializerOptions)!);
                             break;
                         default:
+                            // MANUALLY EDITED CODE HERE
+                            if (localVarJsonPropertyName != null)
+                            {
+                                var element = JsonDocument.ParseValue(ref utf8JsonReader).RootElement;
+                                if (additionalProperties == null)
+                                    additionalProperties = new Dictionary<string, JsonElement>();
+                                additionalProperties[localVarJsonPropertyName] = element;
+                            }
                             break;
                     }
                 }
@@ -139,7 +149,7 @@ namespace MnestixSearcher.Clients.Model
             if (pagingMetadata.IsSet && pagingMetadata.Value == null)
                 throw new ArgumentNullException(nameof(pagingMetadata), "Property is not nullable for class PagedResult.");
 
-            return new PagedResult(pagingMetadata);
+            return new PagedResult(pagingMetadata, additionalProperties);
         }
 
         /// <summary>

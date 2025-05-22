@@ -47,6 +47,7 @@ public class AasSearcherService
             if (apiResponse.IsOk && apiResponse.TryOk(out var pagedResult))
             {
                 Console.WriteLine($"API call succeeded. Checking response structure...");
+                var test = apiResponse.Ok();
                 
                 // The PagedResult contains result items in AdditionalProperties
                 if (pagedResult.AdditionalProperties.TryGetValue("result", out var resultElement))
@@ -54,7 +55,8 @@ public class AasSearcherService
                     // Deserialize the JSON element to a list of AAS
                     var aasItems = System.Text.Json.JsonSerializer.Deserialize<List<AssetAdministrationShell>>(
                         resultElement.GetRawText(), 
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true, IncludeFields = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                            NumberHandling = JsonNumberHandling.AllowReadingFromString });
                     
                     if (aasItems != null && aasItems.Count > 0)
                     {
