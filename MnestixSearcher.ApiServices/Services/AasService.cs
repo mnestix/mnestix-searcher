@@ -9,10 +9,10 @@ namespace MnestixSearcher.ApiServices.Services
     {
         private readonly IAasRepoService _aasRepoService = aasRepoService;
 
-        public async Task<ICollection<AssetAdministrationShell>> GetAssetAdministrationShellsAsync()
+        public async Task<ICollection<AssetAdministrationShell>> GetAssetAdministrationShellsAsync(int? limit)
         {
             List<AssetAdministrationShell> assetAdministrationShells = [];
-            var response = await _aasRepoService.GetAssetAdministrationShell();
+            var response = await _aasRepoService.GetAssetAdministrationShell(limit);
             JsonNode? responseObject = JsonNode.Parse(response)?["result"];
 
             if (responseObject != null)

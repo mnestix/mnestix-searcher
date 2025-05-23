@@ -1,13 +1,9 @@
+using AasCore.Aas3_0;
 using Microsoft.Extensions.Options;
-using MnestixSearcher.ApiClient;
 using MnestixSearcher.ApiServices.Contracts;
-using MnestixSearcher.ApiServices.Contracts.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Newtonsoft.Json.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
+using System.Security.Cryptography.Xml;
 
 namespace MnestixSearcher.AasSearcher;
 
@@ -15,13 +11,16 @@ public class AasSearcherService
 {
     private readonly IMongoCollection<AasSearchEntry> _aasSearchEntries;
     private readonly IAasService _aasService;
+    private readonly ISubmodelService _submodelService;
 
     public AasSearcherService(
         IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings,
-        IAasService assetAdministrationShellRepositoryAPIApi)
+        IAasService aasService,
+        ISubmodelService submodelService)
     {
-        _aasService = assetAdministrationShellRepositoryAPIApi;
-        
+        _aasService = aasService;
+        _submodelService = submodelService;
+
         var mongoClient = new MongoClient(
             aasSearchDatabaseSettings.Value.ConnectionString);
 
@@ -47,7 +46,49 @@ public class AasSearcherService
         {
             var shells = await _aasService.GetAssetAdministrationShellsAsync();
 
-            Console.WriteLine(apiResponse.ToString());
+            foreach (var shell in shells)
+            {
+                if (shell?.Submodels == null)
+                    continue;
+
+                foreach (var submodelRef in shell.Submodels)
+                {
+                    var reference = submodelRef?.Keys?.FirstOrDefault(key => key.Type == KeyTypes.Submodel);
+                    var submodelId = reference?.Value;
+                    if (string.IsNullOrWhiteSpace(submodelId))
+                        continue;
+
+                    var metadata = await _submodelService.GetSubmodelMetadada(submodelId);
+                    var semanticKeyValue = metadata?.SemanticId?.Keys?
+                        .FirstOrDefault(key => key.Type == KeyTypes.GlobalReference || key.Type == KeyTypes.Submodel)
+                        ?.Value?.ToLower();
+
+                    if (string.IsNullOrEmpty(semanticKeyValue))
+                        continue;
+
+                    if (semanticKeyValue.Contains("nameplate"))
+                    {
+                        var submodel = await _submodelService.GetSubmodeById(submodelId);
+                        var elements = submodel?.SubmodelElements;
+
+                        var productRoot = elements?
+                            .Where(el => SemanticIdContains(el, "0173-1#02-AAU732#001"))
+                            .ToList();
+
+                        if (productRoot?.Count == 1)
+                        {
+                            var value = ((MultiLanguageProperty)productRoot[0])?.Value?[0].Text.ToString();
+                            Console.WriteLine(value);
+                        }
+                    }
+                    else if (semanticKeyValue.Contains("technicaldata"))
+                    {
+                        var submodel = await _submodelService.GetSubmodeById(submodelId);
+                        Console.WriteLine(submodel);
+                    }
+                }
+
+            }
         }
 
         catch (Exception ex)
@@ -125,4 +166,12 @@ public class AasSearcherService
             throw new InvalidOperationException("Error initializing Collection", ex);
         }
     }
+
+    private static bool SemanticIdContains(ISubmodelElement el, string keyword)
+    {
+        return el.SemanticId?.Keys?
+            .Any(key => key.Type == KeyTypes.GlobalReference &&
+                        key.Value.Contains(keyword, StringComparison.OrdinalIgnoreCase)) == true;
+    }
+
 }

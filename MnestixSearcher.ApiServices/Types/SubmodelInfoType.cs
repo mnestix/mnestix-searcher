@@ -9,6 +9,6 @@ namespace MnestixSearcher.ApiServices.Types
     public enum SubmodelInfoType
     {
         Submodel,
-        SubElements
+        MetaData
     }
 }

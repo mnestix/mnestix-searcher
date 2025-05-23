@@ -24,18 +24,18 @@ namespace MnestixSearcher.ApiServices.Services.Repository
                 case SubmodelInfoType.Submodel:
                     response = await _submodelHttpClient.GetAsync($"/submodels/{encodedSubmodelId}");
                     break;
-                case SubmodelInfoType.SubElements:
-                    response = await _submodelHttpClient.GetAsync($"/submodels/{encodedSubmodelId}/submodel-elements");
+                case SubmodelInfoType.MetaData:
+                    response = await _submodelHttpClient.GetAsync($"/submodels/{encodedSubmodelId}/$metadata");
                     break;
             }
 
             if (response.IsSuccessful)
             {
-                return response.Content != null ? response.Content : $"No Content returned {response.StatusCode}";
+                return response.Content ?? $"No Content returned {response.StatusCode}";
             }
             else
             {
-                return response.ErrorMessage != null ? response.ErrorMessage : $"Error with status code: {response.StatusCode}";
+                return response.ErrorMessage ?? $"Error with status code: {response.StatusCode}";
             }
         }
 
@@ -44,11 +44,11 @@ namespace MnestixSearcher.ApiServices.Services.Repository
             var response = await _submodelHttpClient.GetAsync("/submodels");
             if (response.IsSuccessful)
             {
-                return response.Content != null ? response.Content : $"No Content returned {response.StatusCode}";
+                return response.Content ?? $"No Content returned {response.StatusCode}";
             }
             else
             {
-                return response.ErrorMessage != null ? response.ErrorMessage : $"Error with status code: {response.StatusCode}";
+                return response.ErrorMessage ?? $"Error with status code: {response.StatusCode}";
             }
         }
     }

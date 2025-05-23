@@ -9,16 +9,16 @@ namespace MnestixSearcher.ApiServices.Services.Repository
         private readonly IAasHttpClient _aasHttpClient = aasHttpClient;
         private readonly IBase64Service _base64Service = base64Service;
 
-        public async Task<string> GetAssetAdministrationShell()
+        public async Task<string> GetAssetAdministrationShell(int? limit)
         {
-            var response = await _aasHttpClient.GetAsync("/shells");
+            var response = await _aasHttpClient.GetAsync($"/shells?limit={limit}");
             if (response.IsSuccessful)
             {
-                return response.Content != null ? response.Content : $"No Content returned {response.StatusCode}";
+                return response.Content ?? $"No Content returned {response.StatusCode}";
             }
             else
             {
-                return response.ErrorMessage != null ? response.ErrorMessage : $"Error with status code: {response.StatusCode}";
+                return response.ErrorMessage ?? $"Error with status code: {response.StatusCode}";
             }
         }
 
@@ -45,11 +45,11 @@ namespace MnestixSearcher.ApiServices.Services.Repository
 
             if (response.IsSuccessful)
             {
-                return response.Content != null ? response.Content : $"No Content returned {response.StatusCode}";
+                return response.Content ?? $"No Content returned {response.StatusCode}";
             }
             else
             {
-                return response.ErrorMessage != null ? response.ErrorMessage : $"Error with status code: {response.StatusCode}";
+                return response.ErrorMessage ?? $"Error with status code: {response.StatusCode}";
             }
         }
     }

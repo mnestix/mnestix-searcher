@@ -38,6 +38,7 @@ namespace MnestixSearcher.ApiServices
         {
             services.AddTransient<IBase64Service, Base64Service>();
             services.AddScoped<IAasService, AasService>();
+            services.AddScoped<ISubmodelService, SubmodelService>();
 
             return services;
         }
