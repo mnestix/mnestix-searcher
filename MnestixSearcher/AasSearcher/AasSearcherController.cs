@@ -41,7 +41,7 @@ public class AasSearcherController : ControllerBase
 
         if (!string.IsNullOrEmpty(productDesignation))
             filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductDesignation, productDesignation));
-        
+
         if (classification != null)
         {
             foreach (var property in classification)

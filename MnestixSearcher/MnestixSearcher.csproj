@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MnestixSearcher.Clients\MnestixSearcher.Clients.csproj" />
+    <ProjectReference Include="..\MnestixSearcher.ApiServices\MnestixSearcher.ApiServices.csproj" />
   </ItemGroup>
 
 </Project>

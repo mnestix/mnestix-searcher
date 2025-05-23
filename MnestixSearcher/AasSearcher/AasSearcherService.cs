@@ -1,9 +1,12 @@
 using Microsoft.Extensions.Options;
+using MnestixSearcher.ApiClient;
+using MnestixSearcher.ApiServices.Contracts;
+using MnestixSearcher.ApiServices.Contracts.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MnestixSearcher.Clients.Api;
-using MnestixSearcher.Clients.Model;
+using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MnestixSearcher.AasSearcher;
@@ -11,13 +14,13 @@ namespace MnestixSearcher.AasSearcher;
 public class AasSearcherService
 {
     private readonly IMongoCollection<AasSearchEntry> _aasSearchEntries;
-    private readonly IAssetAdministrationShellRepositoryAPIApi _assetAdministrationShellRepositoryAPIApi;
+    private readonly IAasService _aasService;
 
     public AasSearcherService(
         IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings,
-        IAssetAdministrationShellRepositoryAPIApi assetAdministrationShellRepositoryAPIApi)
+        IAasService assetAdministrationShellRepositoryAPIApi)
     {
-        _assetAdministrationShellRepositoryAPIApi = assetAdministrationShellRepositoryAPIApi;
+        _aasService = assetAdministrationShellRepositoryAPIApi;
         
         var mongoClient = new MongoClient(
             aasSearchDatabaseSettings.Value.ConnectionString);
@@ -28,7 +31,7 @@ public class AasSearcherService
         _aasSearchEntries = mongoDatabase.GetCollection<AasSearchEntry>(
             aasSearchDatabaseSettings.Value.CollectionName);
         
-    //    InitializeCollectionAsync().Wait();
+        InitializeCollectionAsync().Wait();
 
     }
     
@@ -42,57 +45,17 @@ public class AasSearcherService
       
         try
         {
-            var apiResponse = await _assetAdministrationShellRepositoryAPIApi.GetAllAssetAdministrationShellsAsync(limit: "1000");
-            
-            if (apiResponse.IsOk && apiResponse.TryOk(out var pagedResult))
-            {
-                Console.WriteLine($"API call succeeded. Checking response structure...");
-                
-                // The PagedResult contains result items in AdditionalProperties
-                if (pagedResult.AdditionalProperties.TryGetValue("result", out var resultElement))
-                {
-                    // Deserialize the JSON element to a list of AAS
-                    var aasItems = System.Text.Json.JsonSerializer.Deserialize<List<AssetAdministrationShell>>(
-                        resultElement.GetRawText(), 
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    
-                    if (aasItems != null && aasItems.Count > 0)
-                    {
-                        Console.WriteLine($"Found {aasItems.Count} Asset Administration Shells");
-                        
-                        // Process each AAS and add to database
-                        foreach (var aas in aasItems)
-                        {
-                            Console.WriteLine($"Processing AAS: {aas.IdShort ?? aas.Id}");
-                            // TODO: Convert AAS to AasSearchEntry and add to database
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("No Asset Administration Shells found in the result");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Could not find 'result' property in the response");
-                    // List all available properties in the response
-                    Console.WriteLine("Available properties: " + string.Join(", ", pagedResult.AdditionalProperties.Keys));
-                }
-            }
-            else
-            {
-                Console.WriteLine($"API call failed with status: {apiResponse.StatusCode}");
-                if (apiResponse.IsBadRequest && apiResponse.TryBadRequest(out var errorResult))
-                {
-                    Console.WriteLine($"Bad request error: {errorResult?.Messages?.FirstOrDefault()?.Text}");
-                }
-            }        }
+            var shells = await _aasService.GetAssetAdministrationShellsAsync();
+
+            Console.WriteLine(apiResponse.ToString());
+        }
+
         catch (Exception ex)
         {
             Console.WriteLine($"Exception during API call: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
         }
-
+        
 
         // Delete all existing documents in the collection
         await _aasSearchEntries.DeleteManyAsync(_ => true);
