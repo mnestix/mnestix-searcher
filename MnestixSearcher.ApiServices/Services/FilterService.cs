@@ -2,13 +2,6 @@
 using MnestixSearcher.AasSearcher;
 using MnestixSearcher.ApiServices.Contracts;
 using MnestixSearcher.ApiServices.Dto;
-using MnestixSearcher.ApiServices.Visitors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static AasCore.Aas3_0.Visitation;
 
 namespace MnestixSearcher.ApiServices.Services
 {

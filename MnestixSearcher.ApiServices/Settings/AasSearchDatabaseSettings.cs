@@ -1,4 +1,4 @@
-namespace MnestixSearcher;
+namespace MnestixSearcher.ApiServices.Settings;
 
 public class AasSearchDatabaseSettings
 {

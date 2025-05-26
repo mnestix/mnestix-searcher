@@ -1,28 +1,15 @@
-using MnestixSearcher;
-using MnestixSearcher.AasSearcher;
 using MnestixSearcher.ApiServices;
+using MnestixSearcher.ApiServices.Services;
+using MnestixSearcher.ApiServices.Settings;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AasSearchDatabaseSettings>(
     builder.Configuration.GetSection("AasSearcherDatabase"));
-builder.Services.AddScoped<AasSearcherService>();
-
 
 builder.Services.AddRepositoryServices(builder.Configuration);
 builder.Services.AddMnestixServices(builder.Configuration);
-
-
-// Add API client services
-//builder.Services.AddApi(options =>
-//{
-//    options.AddApiHttpClients(client =>
-//    {
-//        // Configure your API base address here
-//        client.BaseAddress = new Uri("https://vws4ls-api.dev.mnestix.xitaso.net/repo");
-//    });
-//});
 
 // Add services to the container.
 

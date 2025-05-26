@@ -1,4 +1,5 @@
 ﻿using MnestixSearcher.AasSearcher;
+using MnestixSearcher.ApiServices.Contracts;
 
 namespace MnestixSearcher.ApiServices.Visitors
 {

@@ -1,6 +1,7 @@
 ﻿using MnestixSearcher.AasSearcher;
+using MnestixSearcher.ApiServices.Visitors;
 
-namespace MnestixSearcher.ApiServices.Visitors
+namespace MnestixSearcher.ApiServices.Contracts
 {
     public interface IVisitorFactory
     {

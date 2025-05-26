@@ -39,6 +39,7 @@ namespace MnestixSearcher.ApiServices
         public static IServiceCollection AddMnestixServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IBase64Service, Base64Service>();
+            services.AddScoped<AasSearcherService>();
             services.AddScoped<IAasService, AasService>();
             services.AddScoped<ISubmodelService, SubmodelService>();
             services.AddScoped<IFilterService, FilterService>();

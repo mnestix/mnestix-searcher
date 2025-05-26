@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MnestixSearcher.ApiServices.Services;
 using MongoDB.Driver;
 
 namespace MnestixSearcher.AasSearcher;
@@ -33,16 +34,16 @@ public class AasSearcherController : ControllerBase
     {
         var filters = new List<FilterDefinition<AasSearchEntry>>();
 
-        /*
-        if (!string.IsNullOrEmpty(productRoot))
-            filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductRoot, productRoot));
+
+        if (!string.IsNullOrEmpty(productRoot)){
+            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductRoot.MLValues, v => v.Text.Equals(productRoot)));
+        };
 
         if (!string.IsNullOrEmpty(productFamily))
-            filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductFamily, productFamily));
+            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductFamily.MLValues, v => v.Text.Equals(productFamily)));
 
         if (!string.IsNullOrEmpty(productDesignation))
-            filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductDesignation, productDesignation));
-        */
+            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductDesignation.MLValues, v => v.Text.Equals(productDesignation)));
         if (classification != null)
         {
             foreach (var property in classification)

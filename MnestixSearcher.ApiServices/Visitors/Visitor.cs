@@ -45,15 +45,11 @@ namespace MnestixSearcher.ApiServices.Visitors
 
                 var prodClassifications = new Dictionary<string, object>();
 
-                string classificationSystem = "";
+                string? classificationSystem = null;
 
                 var classVal = new ProductClassificationValues();
 
-                foreach (var item in that.Value) {
-
-                    if (item is not Property) continue;
-
-                    var property = (Property)item;
+                foreach (var item in that.Value.OfType<Property>()) {
 
                     var semanticReferences = item.SemanticId;
 
@@ -62,12 +58,16 @@ namespace MnestixSearcher.ApiServices.Visitors
                         SemanticGroups.AllClassificationProperties.Any(id => key.Value.Contains(id, StringComparison.OrdinalIgnoreCase))
                     );
 
-                    AssignIfMatch(SemanticGroups.ProductClassificationSystem, semanticId.Value, v => classificationSystem = property.Value);
-                    AssignIfMatch(SemanticGroups.ProductClassId, semanticId.Value, v => classVal.ProductId = property.Value);
-                    AssignIfMatch(SemanticGroups.ClassificationSystemVersion, semanticId.Value, v => classVal.Version = property.Value);
+                    if (semanticId == null)
+                        continue;
+
+                    AssignIfMatch(SemanticGroups.ProductClassificationSystem, semanticId.Value, v => classificationSystem = item.Value);
+                    AssignIfMatch(SemanticGroups.ProductClassId, semanticId.Value, v => classVal.ProductId = item.Value);
+                    AssignIfMatch(SemanticGroups.ClassificationSystemVersion, semanticId.Value, v => classVal.Version = item.Value);
                 }
 
-                _record.ProductClassifications.Add(classificationSystem, classVal);
+                if (!string.IsNullOrWhiteSpace(classificationSystem))
+                    _record.ProductClassifications[classificationSystem] = classVal;
             }
 
             base.VisitSubmodelElementCollection(that);
@@ -96,7 +96,11 @@ namespace MnestixSearcher.ApiServices.Visitors
 
                 foreach (var value in that.Value)
                 {
-                    propertyData.MLValues[value.Language] = value.Text;
+                    propertyData.MLValues.Add(new MLValue
+                    {
+                        Language = value.Language,
+                        Text = value.Text,
+                    });
                 }
 
                 AssignIfMatch(SemanticGroups.ProductRoot, matchingKey.Value, v => _record.ProductRoot = propertyData);
@@ -114,21 +118,5 @@ namespace MnestixSearcher.ApiServices.Visitors
                 assignAction(value);
             }
         }
-
-        private static Key? FindMatchingKey(
-            IEnumerable<Key>? keys,
-            IEnumerable<string> filterGroup,
-            params KeyTypes[] allowedKeyTypes)
-        {
-            if (keys == null) return null;
-
-            return keys.FirstOrDefault(key =>
-                allowedKeyTypes.Contains(key.Type) &&
-                filterGroup.Any(id =>
-                    key.Value.Contains(id, StringComparison.OrdinalIgnoreCase))
-            );
-        }
-
-
     }
 }

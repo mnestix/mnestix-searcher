@@ -22,8 +22,14 @@ public class PropertyData
 {
     public string SemanticId { get; set; } = string.Empty;
     public string IdShortPath { get; set; } = string.Empty;
-    public string Value { get; set; } = string.Empty;
-    public Dictionary<string, string>? MLValues { get; set; } = [];
+    public string? Value { get; set; }
+    public List<MLValue>? MLValues { get; set; } = [];
+}
+
+public class MLValue
+{
+    public string Language { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
 }
 
 public class ProductClassificationValues
