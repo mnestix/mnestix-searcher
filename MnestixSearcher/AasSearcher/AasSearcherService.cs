@@ -1,9 +1,8 @@
-using AasCore.Aas3_0;
 using Microsoft.Extensions.Options;
 using MnestixSearcher.ApiServices.Contracts;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Security.Cryptography.Xml;
+using System.Collections.Generic;
 
 namespace MnestixSearcher.AasSearcher;
 
@@ -12,15 +11,17 @@ public class AasSearcherService
     private readonly IMongoCollection<AasSearchEntry> _aasSearchEntries;
     private readonly IAasService _aasService;
     private readonly ISubmodelService _submodelService;
+    private readonly IFilterService _filterService;
 
     public AasSearcherService(
         IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings,
         IAasService aasService,
-        ISubmodelService submodelService)
+        ISubmodelService submodelService,
+        IFilterService filterService)
     {
         _aasService = aasService;
         _submodelService = submodelService;
-
+        _filterService = filterService;
         var mongoClient = new MongoClient(
             aasSearchDatabaseSettings.Value.ConnectionString);
 
@@ -44,50 +45,33 @@ public class AasSearcherService
       
         try
         {
+            List<AasSearchEntry> store = [];
             var shells = await _aasService.GetAssetAdministrationShellsAsync();
 
             foreach (var shell in shells)
             {
-                if (shell?.Submodels == null)
+                if (shell?.Submodels == null )//|| shell.AssetInformation.AssetKind != AasCore.Aas3_0.AssetKind.Type)
                     continue;
+
+                var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.Now};
 
                 foreach (var submodelRef in shell.Submodels)
                 {
-                    var reference = submodelRef?.Keys?.FirstOrDefault(key => key.Type == KeyTypes.Submodel);
-                    var submodelId = reference?.Value;
-                    if (string.IsNullOrWhiteSpace(submodelId))
-                        continue;
+                    var smIdResult = await _filterService.FilterSubmodelsBySemanticKey(submodelRef);
 
-                    var metadata = await _submodelService.GetSubmodelMetadada(submodelId);
-                    var semanticKeyValue = metadata?.SemanticId?.Keys?
-                        .FirstOrDefault(key => key.Type == KeyTypes.GlobalReference || key.Type == KeyTypes.Submodel)
-                        ?.Value?.ToLower();
-
-                    if (string.IsNullOrEmpty(semanticKeyValue))
-                        continue;
-
-                    if (semanticKeyValue.Contains("nameplate"))
+                    if (!smIdResult.Success)
                     {
-                        var submodel = await _submodelService.GetSubmodeById(submodelId);
-                        var elements = submodel?.SubmodelElements;
-
-                        var productRoot = elements?
-                            .Where(el => SemanticIdContains(el, "0173-1#02-AAU732#001"))
-                            .ToList();
-
-                        if (productRoot?.Count == 1)
-                        {
-                            var value = ((MultiLanguageProperty)productRoot[0])?.Value?[0].Text.ToString();
-                            Console.WriteLine(value);
-                        }
+                        Console.WriteLine($"Error: {smIdResult.ErrorMessage}");
+                        continue;
                     }
-                    else if (semanticKeyValue.Contains("technicaldata"))
+
+                    if (smIdResult.SemanticKeyValue.Contains("nameplate") || smIdResult.SemanticKeyValue.Contains("technicaldata"))
                     {
-                        var submodel = await _submodelService.GetSubmodeById(submodelId);
-                        Console.WriteLine(submodel);
+                        await _filterService.HandleSubmodel(smIdResult.SubmodelId, record);
                     }
                 }
 
+                if (record.SaveData) store.Add(record);
             }
         }
 
@@ -106,15 +90,7 @@ public class AasSearcherService
         {
             new AasSearchEntry
             {
-                Id = "aasId1",
-                ProductRoot = "ProductRoot1",
-                ProductFamily = "ProductFamily1",
-                ProductDesignation = "ProductDesignation1",
-                ProductClassifications = new Dictionary<string, object>
-                {
-                    {"ECLASS", new {Version = "1.2.3", ProductId = "safsafdsf"}},
-                    {"VEC", new {Version = "1.2.3", ProductId = "safsafdsf"}},
-                },
+                Id = "aasId1",               
              /*   TechnicalProperties = new Dictionary<string, object>
                 { // always use the full idShortPath as key 
                     { "TechnicalData.TechnicalProperties.Size", "10" },
@@ -124,13 +100,6 @@ public class AasSearcherService
             new AasSearchEntry
             {
                 Id = "aadId2",
-                ProductRoot = "ProductRoot2",
-                ProductFamily = "ProductFamily2",
-                ProductDesignation = "ProductDesignation2",
-                ProductClassifications = new Dictionary<string, object> {
-                    {"ECLASS", new {Version = "1.2.3", ProductId = "safsafdsf"}},
-                    {"VEC", new {Version = "1.2.3", ProductId = "safsafdsf"}},
-                },
               /*  TechnicalProperties = new Dictionary<string, object>
                 { // always use the full idShortPath as key 
                     { "TechnicalData.TechnicalProperties.Size", "100" },
@@ -154,9 +123,7 @@ public class AasSearcherService
                 await _aasSearchEntries.Database.CreateCollectionAsync(_aasSearchEntries.CollectionNamespace.CollectionName);
                 
                 var indexKeysDefinition = Builders<AasSearchEntry>.IndexKeys
-                    .Ascending(entry => entry.ProductRoot)
-                    .Ascending(entry => entry.ProductFamily)
-                    .Ascending(entry => entry.ProductDesignation);
+                    .Ascending(entry => entry.Id);
                 
                 await _aasSearchEntries.Indexes.CreateOneAsync(new CreateIndexModel<AasSearchEntry>(indexKeysDefinition));
             }
@@ -166,12 +133,4 @@ public class AasSearcherService
             throw new InvalidOperationException("Error initializing Collection", ex);
         }
     }
-
-    private static bool SemanticIdContains(ISubmodelElement el, string keyword)
-    {
-        return el.SemanticId?.Keys?
-            .Any(key => key.Type == KeyTypes.GlobalReference &&
-                        key.Value.Contains(keyword, StringComparison.OrdinalIgnoreCase)) == true;
-    }
-
 }

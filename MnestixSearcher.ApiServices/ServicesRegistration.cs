@@ -7,6 +7,8 @@ using MnestixSearcher.ApiServices.Services;
 using MnestixSearcher.ApiServices.Services.Repository;
 using MnestixSearcher.ApiServices.Services.Shared;
 using MnestixSearcher.ApiServices.Settings;
+using MnestixSearcher.ApiServices.Visitors;
+using static AasCore.Aas3_0.Visitation;
 
 namespace MnestixSearcher.ApiServices
 {
@@ -39,7 +41,8 @@ namespace MnestixSearcher.ApiServices
             services.AddTransient<IBase64Service, Base64Service>();
             services.AddScoped<IAasService, AasService>();
             services.AddScoped<ISubmodelService, SubmodelService>();
-
+            services.AddScoped<IFilterService, FilterService>();
+            services.AddScoped<IVisitorFactory, VisitorFactory>();
             return services;
         }
     }

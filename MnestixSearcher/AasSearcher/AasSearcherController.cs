@@ -33,6 +33,7 @@ public class AasSearcherController : ControllerBase
     {
         var filters = new List<FilterDefinition<AasSearchEntry>>();
 
+        /*
         if (!string.IsNullOrEmpty(productRoot))
             filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductRoot, productRoot));
 
@@ -41,7 +42,7 @@ public class AasSearcherController : ControllerBase
 
         if (!string.IsNullOrEmpty(productDesignation))
             filters.Add(Builders<AasSearchEntry>.Filter.Eq(entry => entry.ProductDesignation, productDesignation));
-
+        */
         if (classification != null)
         {
             foreach (var property in classification)
