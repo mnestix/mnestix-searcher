@@ -1,21 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
+using MnestixSearcher.AasSearcher;
 using MnestixSearcher.ApiServices.Contracts;
 using MnestixSearcher.ApiServices.Dto;
-using MnestixSearcher.ApiServices.Services;
-using MongoDB.Bson;
+using MnestixSearcher.Authorization;
 using MongoDB.Driver;
-using System.Text.RegularExpressions;
 
-namespace MnestixSearcher.AasSearcher;
+namespace MnestixSearcher.Controllers;
 
+[ApiKey]
 [ApiController]
 [Route("api/[controller]")]
-public class AasSearcherController : ControllerBase
+public class SeedController : ControllerBase
 {
-    private readonly ILogger<AasSearcherController> _logger;
+    private readonly ILogger<SeedController> _logger;
     private readonly IAasSearcherService _searchService;
 
-    public AasSearcherController(ILogger<AasSearcherController> logger, IAasSearcherService searchService)
+    public SeedController(ILogger<SeedController> logger, IAasSearcherService searchService)
     {
         _logger = logger;
         _searchService = searchService;
@@ -29,10 +29,12 @@ public class AasSearcherController : ControllerBase
     }
     
     [HttpGet]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<List<AasSearchEntry>> Get() =>
         await _searchService.GetAsync();
     
     [HttpGet("search")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<List<AasSearchEntry>> GetByCriteria([FromQuery] SearchCriteria? criteria = null)
     {
         var filters = new List<FilterDefinition<AasSearchEntry>>();
