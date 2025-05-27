@@ -14,7 +14,7 @@ public class AasSearchEntry
 
     // public Dictionary<string, object>? TechnicalProperties { get; set; }
 
-    public Dictionary<string, ProductClassificationValues> ProductClassifications { get; set; } = [];
+    public List<ProductClassificationValues> ProductClassifications { get; set; } = [];
     public Boolean SaveData { get; set; } = false;
 }
 
@@ -34,6 +34,7 @@ public class MLValue
 
 public class ProductClassificationValues
 {
+    public string System { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
     public string ProductId { get; set; } = string.Empty;
 }
