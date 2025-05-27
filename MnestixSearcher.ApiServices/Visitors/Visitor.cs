@@ -101,6 +101,7 @@ namespace MnestixSearcher.ApiServices.Visitors
                     });
                 }
 
+                AssignIfMatch(SemanticGroups.ManufacturerName, matchingKey.Value, v => _record.ManufacturerName = propertyData);
                 AssignIfMatch(SemanticGroups.ProductRoot, matchingKey.Value, v => _record.ProductRoot = propertyData);
                 AssignIfMatch(SemanticGroups.ProductFamily, matchingKey.Value, v => _record.ProductFamily = propertyData);
                 AssignIfMatch(SemanticGroups.ProductDesignation, matchingKey.Value, v => _record.ProductDesignation = propertyData);

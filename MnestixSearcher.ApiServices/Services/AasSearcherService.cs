@@ -54,7 +54,7 @@ public class AasSearcherService : IAasSearcherService
                 if (shell?.Submodels == null || shell.AssetInformation.AssetKind != AasCore.Aas3_0.AssetKind.Type)
                     continue;
 
-                var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow };
+                var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow, ThumbnailUrl = shell.AssetInformation.DefaultThumbnail?.Path };
 
                 foreach (var submodelRef in shell.Submodels)
                 {

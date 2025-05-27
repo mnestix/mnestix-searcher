@@ -8,6 +8,8 @@ public class AasSearchEntry
     [BsonId]
     public string? Id { get; set; }
     public DateTime? CreatedTime { get; set; }
+    public string? ThumbnailUrl { get; set; }
+    public PropertyData? ManufacturerName { get; set; }
     public PropertyData? ProductRoot { get; set; }
     public PropertyData? ProductFamily { get; set; }
     public PropertyData? ProductDesignation { get; set; }

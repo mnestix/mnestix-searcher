@@ -2,6 +2,11 @@
 {
     public static class SemanticGroups
     {
+        public static readonly string[] ManufacturerName = {
+            "0173-1#02-AAO677#004",
+            "0173-1#02-AAO677#002"
+        };
+
         public static readonly string[] ProductRoot = {
             "0173-1#02-AAU732#001"
         };
@@ -16,7 +21,7 @@
             "0173-1#02-AAW338#001"
         };
 
-        public static string[] AllMlProperties => [.. ProductRoot, .. ProductFamily, .. ProductDesignation];
+        public static string[] AllMlProperties => [.. ProductRoot, .. ProductFamily, .. ProductDesignation, .. ManufacturerName];
 
         public static readonly string[] ProductClassificationItem = {
             "https://admin-shell.io/ZVEI/TechnicalData/ProductClassificationItem/1/1"
