@@ -7,13 +7,13 @@ using MongoDB.Driver;
 
 namespace MnestixSearcher.ApiServices.Services;
 
-public class AasSearcherService : IAasSearcherService
+public class SeedService : ISeedService
 {
     private readonly IMongoCollection<AasSearchEntry> _aasSearchEntries;
     private readonly IAasService _aasService;
     private readonly IFilterService _filterService;
 
-    public AasSearcherService(
+    public SeedService(
         IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings,
         IAasService aasService,
         IFilterService filterService)
@@ -41,7 +41,7 @@ public class AasSearcherService : IAasSearcherService
         return await _aasSearchEntries.Find(filter).ToListAsync();
     }
 
-    public async Task FillDatabase()
+    public async Task SeedDatabase()
     {
 
         try

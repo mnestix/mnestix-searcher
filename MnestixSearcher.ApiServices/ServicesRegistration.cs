@@ -41,7 +41,7 @@ namespace MnestixSearcher.ApiServices
                     configuration.GetSection("AuthenticationSettings"));
 
             services.AddTransient<IBase64Service, Base64Service>();
-            services.AddScoped<IAasSearcherService, AasSearcherService>();
+            services.AddScoped<ISeedService, SeedService>();
             services.AddScoped<IAasService, AasService>();
             services.AddScoped<ISubmodelService, SubmodelService>();
             services.AddScoped<IFilterService, FilterService>();
