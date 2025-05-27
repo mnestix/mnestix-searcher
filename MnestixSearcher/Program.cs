@@ -1,13 +1,15 @@
-using MnestixSearcher;
-using MnestixSearcher.AasSearcher;
+using MnestixSearcher.ApiServices;
+using MnestixSearcher.ApiServices.Services;
+using MnestixSearcher.ApiServices.Settings;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AasSearchDatabaseSettings>(
     builder.Configuration.GetSection("AasSearcherDatabase"));
-builder.Services.AddSingleton<AasSearcherService>();
 
-builder.Services.AddOpenApi();
+builder.Services.AddRepositoryServices(builder.Configuration);
+builder.Services.AddMnestixServices(builder.Configuration);
 
 // Add services to the container.
 
