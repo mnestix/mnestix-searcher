@@ -1,6 +1,6 @@
 using MnestixSearcher.ApiServices;
-using MnestixSearcher.ApiServices.Services;
 using MnestixSearcher.ApiServices.Settings;
+using MnestixSearcher.Schemes.Query;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +10,12 @@ builder.Services.Configure<AasSearchDatabaseSettings>(
 
 builder.Services.AddRepositoryServices(builder.Configuration);
 builder.Services.AddMnestixServices(builder.Configuration);
+
+//Add GraphQl
+builder.Services.AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddFiltering()
+    .AddSorting();
 
 // Add services to the container.
 
@@ -31,7 +37,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.MapGraphQL();
 
 app.MapControllers();
 
