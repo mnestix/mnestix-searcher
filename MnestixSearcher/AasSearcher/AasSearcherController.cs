@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MnestixSearcher.ApiServices.Contracts;
 using MnestixSearcher.ApiServices.Dto;
 using MnestixSearcher.ApiServices.Services;
 using MongoDB.Bson;
@@ -12,9 +13,9 @@ namespace MnestixSearcher.AasSearcher;
 public class AasSearcherController : ControllerBase
 {
     private readonly ILogger<AasSearcherController> _logger;
-    private readonly AasSearcherService _searchService;
+    private readonly IAasSearcherService _searchService;
 
-    public AasSearcherController(ILogger<AasSearcherController> logger, AasSearcherService searchService)
+    public AasSearcherController(ILogger<AasSearcherController> logger, IAasSearcherService searchService)
     {
         _logger = logger;
         _searchService = searchService;

@@ -38,12 +38,9 @@ public class AasSearcherService : IAasSearcherService
 
     public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter)
     {
-
-
-
-
         return await _aasSearchEntries.Find(filter).ToListAsync();
     }
+
     public async Task FillDatabase()
     {
 
