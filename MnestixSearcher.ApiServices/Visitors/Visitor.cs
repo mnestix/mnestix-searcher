@@ -62,7 +62,7 @@ namespace MnestixSearcher.ApiServices.Visitors
                         continue;
 
                     AssignIfMatch(SemanticGroups.ProductClassificationSystem, semanticId.Value, v => classificationSystem = item.Value);
-                    AssignIfMatch(SemanticGroups.ProductClassId, semanticId.Value, v => classVal.ProductId = item.Value);
+                    AssignIfMatch(SemanticGroups.ProductClassId, semanticId.Value, v => classVal.ProductId = item.Value.Trim());
                     AssignIfMatch(SemanticGroups.ClassificationSystemVersion, semanticId.Value, v => classVal.Version = item.Value);
                 }
 

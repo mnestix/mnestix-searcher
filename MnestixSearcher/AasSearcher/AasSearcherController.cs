@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using MnestixSearcher.ApiServices.Dto;
 using MnestixSearcher.ApiServices.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Text.RegularExpressions;
 
 namespace MnestixSearcher.AasSearcher;
 
@@ -29,30 +32,28 @@ public class AasSearcherController : ControllerBase
         await _searchService.GetAsync();
     
     [HttpGet("search")]
-    public async Task<List<AasSearchEntry>> GetByCriteria([FromQuery] string? productRoot = null, [FromQuery] string? productFamily = null,
-        [FromQuery] string? productDesignation = null, [FromQuery] Dictionary<string, string>? classification = null)
+    public async Task<List<AasSearchEntry>> GetByCriteria([FromQuery] SearchCriteria? criteria = null)
     {
         var filters = new List<FilterDefinition<AasSearchEntry>>();
 
+        if (!string.IsNullOrEmpty(criteria?.ProductRoot))
+            filters.Add(Builders<AasSearchEntry>.Filter.Eq("ProductRoot.MLValues.Text", criteria.ProductRoot));
 
-        if (!string.IsNullOrEmpty(productRoot)){
-            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductRoot.MLValues, v => v.Text.Equals(productRoot)));
-        };
+        if (!string.IsNullOrEmpty(criteria?.ProductFamily))
+            filters.Add(Builders<AasSearchEntry>.Filter.Eq("ProductFamily.MLValues.Text", criteria.ProductFamily));
 
-        if (!string.IsNullOrEmpty(productFamily))
-            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductFamily.MLValues, v => v.Text.Equals(productFamily)));
+        if (!string.IsNullOrEmpty(criteria?.ProductDesignation))
+            filters.Add(Builders<AasSearchEntry>.Filter.Eq("ProductDesignation.MLValues.Text", criteria.ProductDesignation));
 
-        if (!string.IsNullOrEmpty(productDesignation))
-            filters.Add(Builders<AasSearchEntry>.Filter.ElemMatch(x => x.ProductDesignation.MLValues, v => v.Text.Equals(productDesignation)));
-        if (classification != null)
+        if (criteria?.Classification != null)
         {
-            foreach (var property in classification)
+            foreach (var property in criteria.Classification)
             {
-                filters.Add(Builders<AasSearchEntry>.Filter.Eq($"ProductClassifications.{property.Key}", property.Value));
+                filters.Add(Builders<AasSearchEntry>.Filter.Eq($"ProductClassifications.{property.Key}.ProductId", property.Value));
             }
         }
 
-        var combinedFilter = filters.Count > 0
+        var combinedFilter = filters.Count != 0
             ? Builders<AasSearchEntry>.Filter.And(filters)
             : Builders<AasSearchEntry>.Filter.Empty;
 
