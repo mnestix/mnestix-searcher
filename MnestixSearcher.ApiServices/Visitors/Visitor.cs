@@ -45,8 +45,6 @@ namespace MnestixSearcher.ApiServices.Visitors
 
                 var prodClassifications = new Dictionary<string, object>();
 
-                string? classificationSystem = null;
-
                 var classVal = new ProductClassificationValues();
 
                 foreach (var item in that.Value.OfType<Property>()) {
@@ -61,13 +59,13 @@ namespace MnestixSearcher.ApiServices.Visitors
                     if (semanticId == null)
                         continue;
 
-                    AssignIfMatch(SemanticGroups.ProductClassificationSystem, semanticId.Value, v => classificationSystem = item.Value);
+                    AssignIfMatch(SemanticGroups.ProductClassificationSystem, semanticId.Value, v => classVal.System = item.Value);
                     AssignIfMatch(SemanticGroups.ProductClassId, semanticId.Value, v => classVal.ProductId = item.Value.Trim());
                     AssignIfMatch(SemanticGroups.ClassificationSystemVersion, semanticId.Value, v => classVal.Version = item.Value);
                 }
 
-                if (!string.IsNullOrWhiteSpace(classificationSystem))
-                    _record.ProductClassifications[classificationSystem] = classVal;
+                if (!string.IsNullOrWhiteSpace(classVal.System))
+                    _record.ProductClassifications.Add(classVal);
             }
 
             base.VisitSubmodelElementCollection(that);
@@ -103,6 +101,7 @@ namespace MnestixSearcher.ApiServices.Visitors
                     });
                 }
 
+                AssignIfMatch(SemanticGroups.ManufacturerName, matchingKey.Value, v => _record.ManufacturerName = propertyData);
                 AssignIfMatch(SemanticGroups.ProductRoot, matchingKey.Value, v => _record.ProductRoot = propertyData);
                 AssignIfMatch(SemanticGroups.ProductFamily, matchingKey.Value, v => _record.ProductFamily = propertyData);
                 AssignIfMatch(SemanticGroups.ProductDesignation, matchingKey.Value, v => _record.ProductDesignation = propertyData);

@@ -7,13 +7,13 @@ using MongoDB.Driver;
 
 namespace MnestixSearcher.ApiServices.Services;
 
-public class AasSearcherService
+public class SeedService : ISeedService
 {
     private readonly IMongoCollection<AasSearchEntry> _aasSearchEntries;
     private readonly IAasService _aasService;
     private readonly IFilterService _filterService;
 
-    public AasSearcherService(
+    public SeedService(
         IOptions<AasSearchDatabaseSettings> aasSearchDatabaseSettings,
         IAasService aasService,
         IFilterService filterService)
@@ -28,24 +28,22 @@ public class AasSearcherService
 
         _aasSearchEntries = mongoDatabase.GetCollection<AasSearchEntry>(
             aasSearchDatabaseSettings.Value.CollectionName);
-        
+
         InitializeCollectionAsync().Wait();
 
     }
-    
+
     public async Task<List<AasSearchEntry>> GetAsync() =>
         await _aasSearchEntries.Find(_ => true).ToListAsync();
 
-    public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter) {
-
-
-      
-            
+    public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter)
+    {
         return await _aasSearchEntries.Find(filter).ToListAsync();
     }
-    public async Task FillDatabase()
+
+    public async Task SeedDatabase()
     {
-      
+
         try
         {
             List<AasSearchEntry> store = [];
@@ -56,7 +54,7 @@ public class AasSearcherService
                 if (shell?.Submodels == null || shell.AssetInformation.AssetKind != AasCore.Aas3_0.AssetKind.Type)
                     continue;
 
-                var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow};
+                var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow, ThumbnailUrl = shell.AssetInformation.DefaultThumbnail?.Path };
 
                 foreach (var submodelRef in shell.Submodels)
                 {
@@ -81,7 +79,8 @@ public class AasSearcherService
             await _aasSearchEntries.DeleteManyAsync(_ => true);
 
             await _aasSearchEntries.InsertManyAsync(store);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Console.WriteLine($"Exception during API call: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
@@ -94,11 +93,11 @@ public class AasSearcherService
             // Check if collection is already there
             var filter = new BsonDocument("name", _aasSearchEntries.CollectionNamespace.CollectionName);
             var collections = await _aasSearchEntries.Database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
-            
+
             if (!await collections.AnyAsync())
             {
                 await _aasSearchEntries.Database.CreateCollectionAsync(_aasSearchEntries.CollectionNamespace.CollectionName);
-                
+
                 var indexKeysDefinition = Builders<AasSearchEntry>.IndexKeys
                     .Ascending(entry => entry.Id)
                     .Ascending(entry => entry.ProductRoot)

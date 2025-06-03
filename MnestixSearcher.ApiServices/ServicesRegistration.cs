@@ -8,7 +8,6 @@ using MnestixSearcher.ApiServices.Services.Repository;
 using MnestixSearcher.ApiServices.Services.Shared;
 using MnestixSearcher.ApiServices.Settings;
 using MnestixSearcher.ApiServices.Visitors;
-using static AasCore.Aas3_0.Visitation;
 
 namespace MnestixSearcher.ApiServices
 {
@@ -38,8 +37,11 @@ namespace MnestixSearcher.ApiServices
 
         public static IServiceCollection AddMnestixServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<AuthenticationSettings>(
+                    configuration.GetSection("AuthenticationSettings"));
+
             services.AddTransient<IBase64Service, Base64Service>();
-            services.AddScoped<AasSearcherService>();
+            services.AddScoped<ISeedService, SeedService>();
             services.AddScoped<IAasService, AasService>();
             services.AddScoped<ISubmodelService, SubmodelService>();
             services.AddScoped<IFilterService, FilterService>();
