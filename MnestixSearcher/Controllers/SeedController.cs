@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using MnestixSearcher.AasSearcher;
 using MnestixSearcher.ApiServices.Contracts;
-using MnestixSearcher.ApiServices.Dto;
 using MnestixSearcher.Authorization;
-using MongoDB.Driver;
 
 namespace MnestixSearcher.Controllers;
 
@@ -27,9 +24,4 @@ public class SeedController : ControllerBase
         await _seedService.SeedDatabase();
         return NoContent();
     }
-    
-    [HttpGet]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<List<AasSearchEntry>> Get() =>
-        await _seedService.GetAsync();
 }

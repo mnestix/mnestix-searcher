@@ -33,14 +33,6 @@ public class SeedService : ISeedService
 
     }
 
-    public async Task<List<AasSearchEntry>> GetAsync() =>
-        await _aasSearchEntries.Find(_ => true).ToListAsync();
-
-    public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter)
-    {
-        return await _aasSearchEntries.Find(filter).ToListAsync();
-    }
-
     public async Task SeedDatabase()
     {
 

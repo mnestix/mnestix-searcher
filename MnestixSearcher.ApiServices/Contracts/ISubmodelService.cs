@@ -1,5 +1,4 @@
 ﻿using AasCore.Aas3_0;
-using Newtonsoft.Json.Linq;
 
 namespace MnestixSearcher.ApiServices.Contracts
 {
