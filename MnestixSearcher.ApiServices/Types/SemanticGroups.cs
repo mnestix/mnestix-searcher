@@ -3,17 +3,20 @@
     public static class SemanticGroups
     {
         public static readonly string[] ProductRoot = {
-            "0173-1#02-AAU732#001"
+            "0173-1#02-AAU732#001",
+            "0112/2///61360_7#AAS011#001"
         };
 
         public static readonly string[] ProductFamily = {
             "0173-1#02-AAU731#003",
-            "0173-1#02-AAU731#001"
+            "0173-1#02-AAU731#001",
+            "0112/2///61987#ABP464#002"
         };
 
         public static readonly string[] ProductDesignation = {
             "0173-1#02-AAW338#003",
-            "0173-1#02-AAW338#001"
+            "0173-1#02-AAW338#001",
+            "0112/2///61987#ABA567#009"
         };
 
         public static string[] AllMlProperties => [.. ProductRoot, .. ProductFamily, .. ProductDesignation];
