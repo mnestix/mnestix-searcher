@@ -46,6 +46,8 @@ public class SeedService : ISeedService
                 if (shell?.Submodels == null || shell.AssetInformation.AssetKind != AasCore.Aas3_0.AssetKind.Type)
                     continue;
 
+                var isTechnicalDataAdded = false;
+
                 var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow, ThumbnailUrl = shell.AssetInformation.DefaultThumbnail?.Path };
 
                 foreach (var submodelRef in shell.Submodels)
@@ -62,9 +64,15 @@ public class SeedService : ISeedService
                     {
                         await _filterService.HandleSubmodel(smIdResult.SubmodelId, record);
                     }
+
+                    if (smIdResult.SemanticKeyValue.Contains("technicaldata")) {
+                        isTechnicalDataAdded = true;
+                    }
                 }
 
-                if (record.SaveData) store.Add(record);
+                if (record.SaveData && isTechnicalDataAdded) { 
+                    store.Add(record); 
+                }
             }
 
             // Delete all existing documents in the collection
