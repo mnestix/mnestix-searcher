@@ -33,14 +33,6 @@ public class SeedService : ISeedService
 
     }
 
-    public async Task<List<AasSearchEntry>> GetAsync() =>
-        await _aasSearchEntries.Find(_ => true).ToListAsync();
-
-    public async Task<List<AasSearchEntry>> GetByCriteriaAsync(FilterDefinition<AasSearchEntry> filter)
-    {
-        return await _aasSearchEntries.Find(filter).ToListAsync();
-    }
-
     public async Task SeedDatabase()
     {
 
@@ -53,6 +45,8 @@ public class SeedService : ISeedService
             {
                 if (shell?.Submodels == null || shell.AssetInformation.AssetKind != AasCore.Aas3_0.AssetKind.Type)
                     continue;
+
+                var isTechnicalDataAdded = false;
 
                 var record = new AasSearchEntry { Id = shell.Id, CreatedTime = DateTime.UtcNow, ThumbnailUrl = shell.AssetInformation.DefaultThumbnail?.Path };
 
@@ -70,9 +64,15 @@ public class SeedService : ISeedService
                     {
                         await _filterService.HandleSubmodel(smIdResult.SubmodelId, record);
                     }
+
+                    if (smIdResult.SemanticKeyValue.Contains("technicaldata")) {
+                        isTechnicalDataAdded = true;
+                    }
                 }
 
-                if (record.SaveData) store.Add(record);
+                if (record.SaveData && isTechnicalDataAdded) { 
+                    store.Add(record); 
+                }
             }
 
             // Delete all existing documents in the collection
