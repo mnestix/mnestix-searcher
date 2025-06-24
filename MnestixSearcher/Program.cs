@@ -20,11 +20,11 @@ builder.Services.AddGraphQLServer()
     .AddSorting()
     .ModifyCostOptions(options =>
     {
-        options.MaxFieldCost = 5_000;
-        options.MaxTypeCost = 5_000;
-        options.EnforceCostLimits = true;
-        options.ApplyCostDefaults = true;
-        options.DefaultResolverCost = 10.0;
+        options.MaxFieldCost = 99999;
+        options.MaxTypeCost = 99999;
+        options.EnforceCostLimits = false;
+        options.ApplyCostDefaults = false;
+        options.DefaultResolverCost = 0.0;
     });
 
 // Add services to the container.
