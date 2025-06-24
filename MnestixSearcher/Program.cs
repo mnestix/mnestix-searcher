@@ -17,7 +17,15 @@ builder.Services.AddMnestixServices(builder.Configuration);
 builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
     .AddFiltering()
-    .AddSorting();
+    .AddSorting()
+    .ModifyCostOptions(options =>
+    {
+        options.MaxFieldCost = 5_000;
+        options.MaxTypeCost = 5_000;
+        options.EnforceCostLimits = true;
+        options.ApplyCostDefaults = true;
+        options.DefaultResolverCost = 10.0;
+    });
 
 // Add services to the container.
 
